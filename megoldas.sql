@@ -145,13 +145,13 @@ ORDER BY k.nev, t.ar DESC;
 -- 1) Rekordok hozzáadása (1.) – új vevő
 INSERT INTO vevo (nev, email, telefon, varos, reg_datum, hirlevel)
 VALUES ('Lakatos Zsófia', 'lakatos.zsofia@example.com',
-        '+36 20 5556677', 'Eger', '2025-07-15', 1);
+        '+36 20 5556677', 'Eger', '2026-05-15', 1);
 
 -- 2) Rekordok hozzáadása (2.) – új rendelés + két tétel
 --    A LAST_INSERT_ID() az előző INSERT által adott azonosítót adja vissza,
 --    így nem kell kézzel beírni a vevő, illetve a rendelés id-ját.
 INSERT INTO rendeles (vevo_id, datum, statusz, szall_cim)
-VALUES (LAST_INSERT_ID(), '2025-07-16', 'Új', 'Eger, Dobó tér 4.');
+VALUES (LAST_INSERT_ID(), '2026-05-21', 'Új', 'Eger, Dobó tér 4.');
 
 SET @uj_rendeles = LAST_INSERT_ID();
 INSERT INTO rendeles_tetel (rendeles_id, termek_id, mennyiseg, egysegar)
@@ -164,10 +164,10 @@ DELETE FROM rendeles
 WHERE statusz = 'Törölve';
 
 -- 4) Rekordok módosítása – feltétel alapján
---    A 2025-04-01 előtti, 'Új' rendelések 'Teljesítve' státuszúra állítása
+--    A 2026-01-01 előtti (régi), 'Új' rendelések 'Teljesítve' státuszúra állítása
 UPDATE rendeles
 SET statusz = 'Teljesítve'
-WHERE statusz = 'Új' AND datum < '2025-04-01';
+WHERE statusz = 'Új' AND datum < '2026-01-01';
 
 -- 5) Rekordok módosítása – összes rekord
 --    Minden termék árának 10%-os emelése

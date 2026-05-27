@@ -4,17 +4,17 @@
 --  Tartalom: adatbázis, 8 tábla, kapcsolatok, DDL-módosítások, adatok
 --  Kódolás: UTF-8 (utf8mb4), magyar rendezési sorrend
 -- ============================================================
- 
+
 DROP DATABASE IF EXISTS webshop;
 CREATE DATABASE webshop
     CHARACTER SET utf8mb4
     COLLATE utf8mb4_hungarian_ci;
 USE webshop;
- 
+
 -- ============================================================
 --  TÁBLÁK LÉTREHOZÁSA  (DDL)
 -- ============================================================
- 
+
 -- 1) Kategória – a termékek besorolása
 CREATE TABLE kategoria (
     kategoria_id INT          NOT NULL AUTO_INCREMENT,
@@ -23,7 +23,7 @@ CREATE TABLE kategoria (
     PRIMARY KEY (kategoria_id),
     CONSTRAINT uq_kategoria_nev UNIQUE (nev)
 ) ENGINE=InnoDB;
- 
+
 -- 2) Szállító – a termékek beszállítói
 CREATE TABLE szallito (
     szallito_id INT          NOT NULL AUTO_INCREMENT,
@@ -33,7 +33,7 @@ CREATE TABLE szallito (
     orszag      VARCHAR(50)  NOT NULL,
     PRIMARY KEY (szallito_id)
 ) ENGINE=InnoDB;
- 
+
 -- 3) Termék – a webshopban árult termékek
 CREATE TABLE termek (
     termek_id    INT            NOT NULL AUTO_INCREMENT,
@@ -48,7 +48,7 @@ CREATE TABLE termek (
     CONSTRAINT fk_termek_szallito FOREIGN KEY (szallito_id)
         REFERENCES szallito (szallito_id)
 ) ENGINE=InnoDB;
- 
+
 -- 4) Vevő – a regisztrált vásárlók
 CREATE TABLE vevo (
     vevo_id   INT          NOT NULL AUTO_INCREMENT,
@@ -60,7 +60,7 @@ CREATE TABLE vevo (
     PRIMARY KEY (vevo_id),
     CONSTRAINT uq_vevo_email UNIQUE (email)
 ) ENGINE=InnoDB;
- 
+
 -- 5) Rendelés – a vevők megrendelései
 CREATE TABLE rendeles (
     rendeles_id INT          NOT NULL AUTO_INCREMENT,
@@ -72,7 +72,7 @@ CREATE TABLE rendeles (
     CONSTRAINT fk_rendeles_vevo FOREIGN KEY (vevo_id)
         REFERENCES vevo (vevo_id)
 ) ENGINE=InnoDB;
- 
+
 -- 6) Rendelési tétel – egy rendelés egyes termék-sorai (kapcsolótábla)
 CREATE TABLE rendeles_tetel (
     tetel_id    INT           NOT NULL AUTO_INCREMENT,
@@ -87,7 +87,7 @@ CREATE TABLE rendeles_tetel (
     CONSTRAINT fk_tetel_termek FOREIGN KEY (termek_id)
         REFERENCES termek (termek_id)
 ) ENGINE=InnoDB;
- 
+
 -- 7) Raktár – a fizikai raktárak
 CREATE TABLE raktar (
     raktar_id INT          NOT NULL AUTO_INCREMENT,
@@ -95,7 +95,7 @@ CREATE TABLE raktar (
     kapacitas INT          NOT NULL,
     PRIMARY KEY (raktar_id)
 ) ENGINE=InnoDB;
- 
+
 -- 8) Raktárkészlet – melyik termékből mennyi van az egyes raktárakban (kapcsolótábla)
 CREATE TABLE raktarkeszlet (
     keszlet_id INT NOT NULL AUTO_INCREMENT,
@@ -110,31 +110,31 @@ CREATE TABLE raktarkeszlet (
     CONSTRAINT fk_keszlet_termek FOREIGN KEY (termek_id)
         REFERENCES termek (termek_id)
 ) ENGINE=InnoDB;
- 
+
 -- ============================================================
 --  DDL FELADATOK – módosítás x2, hozzáadás x2
 -- ============================================================
- 
+
 -- Hozzáadás 1: minden terméknek legyen egyedi cikkszáma
 ALTER TABLE termek
     ADD COLUMN cikkszam VARCHAR(30) NOT NULL UNIQUE AFTER nev;
- 
+
 -- Hozzáadás 2: a vevő feliratkozhat a hírlevélre (0 = nem, 1 = igen)
 ALTER TABLE vevo
     ADD COLUMN hirlevel TINYINT(1) NOT NULL DEFAULT 0;
- 
+
 -- Módosítás 1: a rendelés státusza legyen kötelező, alapértelmezett értékkel
 ALTER TABLE rendeles
     MODIFY COLUMN statusz VARCHAR(30) NOT NULL DEFAULT 'Új';
- 
+
 -- Módosítás 2: a szállító telefonszáma hosszabb (nemzetközi) formátumot is felvehessen
 ALTER TABLE szallito
     MODIFY COLUMN telefon VARCHAR(30) NULL;
- 
+
 -- ============================================================
 --  ADATOK FELTÖLTÉSE  (DML – INSERT)
 -- ============================================================
- 
+
 -- Kategóriák
 INSERT INTO kategoria (nev, leiras) VALUES
 ('Laptop',         'Hordozható számítógépek'),
@@ -143,7 +143,7 @@ INSERT INTO kategoria (nev, leiras) VALUES
 ('Kiegészítők',    'Egér, billentyűzet, kábelek'),
 ('Tárolók',        'SSD, HDD, pendrive'),
 ('Hálózati eszköz','Router, switch, hálózati kártya');
- 
+
 -- Szállítók (az utolsó szállítóhoz szándékosan nem tartozik termék)
 INSERT INTO szallito (nev, email, telefon, orszag) VALUES
 ('TechDistrib Kft.',  'rendeles@techdistrib.hu', '+36 1 234 5678',  'Magyarország'),
@@ -151,7 +151,7 @@ INSERT INTO szallito (nev, email, telefon, orszag) VALUES
 ('AsiaParts Ltd.',    'info@asiaparts.cn',       '+86 21 99887766', 'Kína'),
 ('NordHardware AB',   'order@nordhw.se',         '+46 8 5550101',   'Svédország'),
 ('EuroGadget s.r.o.', 'kontakt@eurogadget.cz',   '+420 2 7654321',  'Csehország');
- 
+
 -- Termékek (cikkszám, ár, kategória, szállító)
 INSERT INTO termek (nev, cikkszam, ar, kategoria_id, szallito_id) VALUES
 ('Lenovo ThinkPad E14',        'LP-0001', 389990.00, 1, 1),
@@ -173,7 +173,7 @@ INSERT INTO termek (nev, cikkszam, ar, kategoria_id, szallito_id) VALUES
 ('Kingston pendrive 128GB',    'TR-0003',   8490.00, 5, 1),
 ('TP-Link Archer router',      'HE-0001',  24990.00, 6, 1),
 ('Netgear switch 8 portos',    'HE-0002',  39990.00, 6, 2);
- 
+
 -- Vevők
 INSERT INTO vevo (nev, email, telefon, varos, reg_datum, hirlevel) VALUES
 ('Kovács Anna',    'kovacs.anna@example.com',   '+36 20 1112233', 'Budapest', '2024-03-12', 1),
@@ -186,7 +186,7 @@ INSERT INTO vevo (nev, email, telefon, varos, reg_datum, hirlevel) VALUES
 ('Molnár Tamás',   'molnar.tamas@example.com',  '+36 30 8889900', 'Budapest', '2025-04-05', 0),
 ('Balogh Nóra',    'balogh.nora@example.com',   '+36 70 9990011', 'Szeged',   '2025-05-18', 1),
 ('Farkas Bence',   'farkas.bence@example.com',  '+36 20 1011213', 'Miskolc',  '2025-06-30', 0);
- 
+
 -- Rendelések
 INSERT INTO rendeles (vevo_id, datum, statusz, szall_cim) VALUES
 ( 1, '2025-07-10', 'Teljesítve',       'Budapest, Fő utca 12.'),
@@ -201,7 +201,7 @@ INSERT INTO rendeles (vevo_id, datum, statusz, szall_cim) VALUES
 ( 8, '2026-04-27', 'Teljesítve',       'Budapest, Andrássy út 60.'),
 ( 9, '2026-05-11', 'Új',               'Szeged, Kárász utca 3.'),
 ( 2, '2026-05-20', 'Szállítás alatt',  'Debrecen, Piac utca 5.');
- 
+
 -- Rendelési tételek (egységár = a rendelés időpontjában érvényes ár)
 INSERT INTO rendeles_tetel (rendeles_id, termek_id, mennyiseg, egysegar) VALUES
 ( 1,  1, 1, 389990.00),
@@ -228,13 +228,13 @@ INSERT INTO rendeles_tetel (rendeles_id, termek_id, mennyiseg, egysegar) VALUES
 (11, 11, 1,  34990.00),
 (12,  1, 1, 389990.00),
 (12, 15, 2,  29990.00);
- 
+
 -- Raktárak
 INSERT INTO raktar (helyszin, kapacitas) VALUES
 ('Budapesti központi raktár', 5000),
 ('Debreceni raktár',          2000),
 ('Szegedi raktár',            1500);
- 
+
 -- Raktárkészlet
 INSERT INTO raktarkeszlet (raktar_id, termek_id, mennyiseg) VALUES
 (1,  1, 25),(1,  2, 18),(1,  3, 12),(1,  4,  8),(1,  5, 30),
